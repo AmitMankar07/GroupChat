@@ -84,7 +84,7 @@ document.querySelector('#fileInput').addEventListener('change', async function()
   formData.append('file',file);
   formData.append('userId',userId);
   formData.append('groupName',groupName);
-  console.log(file.name);
+  // console.log(file.name);
 
   try{
   const response=await axios.post('http://localhost:4000/chat/sendFile/',formData,{
@@ -107,7 +107,7 @@ document.addEventListener('click', (e) => {
     window.location.href = e.target.dataset.fileUrl;
   }
 });
-async function messageSend(fileUrl) {
+async function messageSend() {
   try {
     if (chatBoxBody.querySelector(".groupMembersDiv")) {
       const members = chatBoxBody.querySelectorAll(".groupMembersDiv");
@@ -115,6 +115,7 @@ async function messageSend(fileUrl) {
         member.remove();
       });
     }
+    // console.log("in chat.js mesagesnd fileurl:",fileUrl);
     const message = messageTextArea.value;
  
   
@@ -139,51 +140,78 @@ const response=await axios.get(`http://localhost:4000/chat/getMessages?groupName
 );
 console.log("mesage snd get :",response);
 //   } else
-{
-  if(fileUrl){
+
+  // if(fileUrl){
     // const fileMessage = {
     //   message: `File uploaded: ${fileUrl}`,
     //   groupName: groupName,
     // };
-    const fileName = fileUrl.split('/').pop();
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.appendChild(document.createTextNode(`Download: ${fileName}`));
+//     if (typeof fileUrl === 'string') {
+//   const fileName = fileUrl.split('/').pop();
+//   // ...
+//   const link = document.createElement("a");
+//   link.href = fileUrl;
+//   link.target = "_blank";
+//   link.rel = "noopener noreferrer";
+//   link.appendChild(document.createTextNode(`Download: ${fileName}`));
+//   const res = await axios.post(
+//     `http://localhost:4000/chat/sendMessage/`,
+    
+//     {
+//       message: `File uploaded: ${fileName}`,
+//       // fileUrl: fileUrl,
+//       fileUrl: fileUrl,
+//       groupName: groupName,
+//     },
+//     { headers: { Authorization: token } }
+//   );
+//   console.log("post messagesend",res);
+// } else {
+//   console.error('Invalid fileUrl type:', fileUrl);
+//   return;
+// }
+// }else {
+  const res = await axios.post(
+        `http://localhost:4000/chat/sendMessage/`,
+        
+        {
+          message: message,
+          // fileUrl: fileUrl,
+          // fileUrl: fileUrl,
+          groupName: groupName,
+        },
+        { headers: { Authorization: token } }
+      );
+      console.log("post messagesend",res);
+  // const messageContent = message;
+  // console.log("in else block ",message);
+  // await sendMessage(messageContent);
+// }
+messageTextArea.value = "";
+getMessages();
 
+
+
+
+    // const fileName = fileUrl.split('/').pop();
+  
 
     // let fileUrlForLink=fileUrl;
   
-    const res = await axios.post(
-      `http://localhost:4000/chat/sendMessage/`,
-      
-      {
-        message: `File uploaded: ${fileName}`,
-        // fileUrl: fileUrl,
-        fileUrl: fileUrl,
-        groupName: groupName,
-      },
-      { headers: { Authorization: token } }
-    );
-    console.log("post messagesend",res);
+    
     // const messageElement = document.createElement('div');
     // messageElement.innerHTML = `File: <a href="${fileUrl}" target="_blank">${fileName}</a>`;
     // // Add the messageElement to the chat UI
     // document.getElementById('chat-ui').appendChild(messageElement);
     
-  }else {
-    const messageContent = message;
-    await sendMessage(messageContent);
-  }
+
 //   const messageElement = document.createElement('div');
 // messageElement.innerHTML = `File: <a href="${fileUrl}" target="_blank">${fileName}</a>`;
 
 
-messageTextArea.value = "";
-getMessages();//remove fileurl
+//remove fileurl
 
-}
+
 
 // formData.append("imageUrl", imageUrl);
 
@@ -307,6 +335,9 @@ async function getMessages() {
     chatBoxBody.innerHTML = "";
     messages.forEach((message) => {
       if (message.userId == userId) {
+        // if (message.message.trim()!== "") {}//new changes
+
+        
         const div = document.createElement("div");
         chatBoxBody.appendChild(div);
 
@@ -327,7 +358,7 @@ async function getMessages() {
         const messageText = document.createElement("div");
 
         messageBox.classList.add("d-flex", "justify-content-end", "mb-4");
-       console.log("in getmessages:",message);
+      //  console.log("in getmessages:",message);
         if (message.fileUrl) { // Check if fileUrl is present
           const link = document.createElement("a");
           link.href = fileUrl;
@@ -339,7 +370,7 @@ async function getMessages() {
           messageText.appendChild(document.createTextNode(message.message));
         }
         messageText.classList.add("msg_cotainer_send");
-        messageText.appendChild(document.createTextNode(message.message));
+        // messageText.appendChild(document.createTextNode(message.message));
 
         messageBox.appendChild(messageText);
         div.appendChild(messageBox);
