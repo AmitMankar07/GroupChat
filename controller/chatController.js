@@ -41,7 +41,21 @@ io.on("connection", (socket) => {
       const group = await Group.findOne({ where: { name: groupName } });
       const messages = await Chat.findAll({
         where: { groupId: group.dataValues.id },
+        include: [
+          {
+            model: File,
+            as: "Files",
+            attributes: ["id", "name", "type", "s3Url"],
+          },
+        ],
       });
+      // const formattedMessages = messages.map((message) => {
+      //   const file = message.Files[0];
+      //   if (file) {
+      //     message.message = `<a href="${file.s3Url}" target="_blank">${file.name}</a>`;
+      //   }
+      //   return message;
+      // });
       console.log("Request Made");
       io.emit("messages", messages);
     } catch (error) {
@@ -184,20 +198,37 @@ console.log(req.body);
     const group = await Group.findOne({
       where: { name: req.query.groupName },
     });
+    const allFiles = await File.findAll({
+      attributes: ['id', 'name', 'type', 's3Url'],
+      include: [{ model: Chat, as: 'chat' }],
+      groupId: group.id,
+    });
+    console.log("in get message controller all files", allFiles);
+   
+    console.log("file in controlelr:",{File});
+    console.log("in get message controller group:",group);
     const messages = await Chat.findAll({
       where: {
         [Op.and]: {
           id: {
             [Op.gt]: param,
           },
-          groupId: group.dataValues.id,
+          // groupId: group.dataValues.id,
+          groupId: group.id,
         },
       },
-      include: [{ model: File
-        // attributes: [ 's3Url'] 
+      include: [{ model: File,
+        // required: false, // Add this option
+    // attributes: ['name', 's3Url'],
+    // subQuery: false,
+    //     // attributes: [ 's3Url'] 
        }],
     });
-    console.log("in get message controler",messages);
+    
+const messagesWithoutFiles = messages.filter((message) =>!message.Files);
+    
+console.log("in get message controller messagewithourfilet",messagesWithoutFiles);
+console.log("in get message controller mesage",messages);
     return res.status(200).json({ messages: messages });
   } catch (error) {
     console.log(error);

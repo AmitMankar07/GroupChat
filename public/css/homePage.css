@@ -156,6 +156,9 @@ a6b1e1 */
   padding: 10px;
   position: relative;
 }
+.msg_cotainer a {
+  margin-left: 10px;
+}
 .msg_cotainer_send {
   margin-top: auto;
   margin-bottom: auto;
@@ -164,6 +167,12 @@ a6b1e1 */
   background-color: #dcd6f7;
   padding: 10px;
   position: relative;
+}
+.msg_cotainer_send a {
+  right: 10px;
+}
+.msg_card_body {
+  text-align: right;
 }
 .msg_time {
   position: absolute;

@@ -96,7 +96,9 @@ document.querySelector('#fileInput').addEventListener('change', async function()
   });
   console.log("post sendfile res:",response);
   fileUrl=response.data.fileUrl;
-  messageSend(fileUrl);
+  console.log(fileUrl);
+  // messageSend(fileUrl);
+  getMessages(fileUrl);
 }catch(error){
   console.error(error);
 }
@@ -135,10 +137,11 @@ async function messageSend() {
     // formData.append("image",file);
     formData.append("message", message);
 formData.append("groupName", groupName);
-const response=await axios.get(`http://localhost:4000/chat/getMessages?groupName=${groupName}`,
+const response=await axios.get(`http://localhost:4000/chat/getMessages?groupName=${groupName}&param=0`,
 { headers: { Authorization: token }} 
 );
-console.log("mesage snd get :",response);
+const messages=response.data;
+console.log("mesage snd get :",response.data);
 //   } else
 
   // if(fileUrl){
@@ -332,6 +335,7 @@ async function getMessages() {
   socket.emit("getMessages", groupName);
 
   socket.on("messages", (messages) => {
+    console.log("messages in socekt:",messages);
     chatBoxBody.innerHTML = "";
     messages.forEach((message) => {
       if (message.userId == userId) {
@@ -358,14 +362,30 @@ async function getMessages() {
         const messageText = document.createElement("div");
 
         messageBox.classList.add("d-flex", "justify-content-end", "mb-4");
-      //  console.log("in getmessages:",message);
-        if (message.fileUrl) { // Check if fileUrl is present
+        div.appendChild(messageBox); //did change
+        
+        messageText.classList.add("msg_cotainer_send");
+
+        //  console.log("in getmessages:",message);
+        if (message.Files && message.Files.length>0) { // Check if fileUrl is present
+         
+          const file = message.Files[0];
+          const fileName = file.name;
+          const s3Url = file.s3Url;
+
           const link = document.createElement("a");
-          link.href = fileUrl;
-          link.target = "_blank"; // Open in new tab
+          link.href = s3Url;
+          link.target = "_blank";
+          
+      link.textContent = `Download ${fileName}`; // Open in new tab
           link.rel = "noopener noreferrer"; // Security attributes
-          link.appendChild(document.createTextNode("Download File")); // You can customize the text
+          // link.appendChild(document.createTextNode("Download File")); // You can customize the text
+          // messageText.appendChild(link);
+          // const messageText = document.createElement("div");
           messageText.appendChild(link);
+    
+          chatBoxBody.appendChild(messageText);
+       
         } else {
           messageText.appendChild(document.createTextNode(message.message));
         }
@@ -405,7 +425,6 @@ async function getMessages() {
     });
   });
 }
-
 function decodeToken(token) {
   const base64Url = token.split(".")[1];
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
