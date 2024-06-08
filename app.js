@@ -51,22 +51,17 @@ UserGroup.belongsTo(User);
 UserGroup.belongsTo(Group);
 
 Forgotpassword.belongsTo(User, { foreignKey: 'userId' });
-// User.hasMany(FileURL);
-// FileURL.belongsTo(User);
-// Chat.hasMany(FileURL);
-// FileURL.belongsTo(Chat);
+
 
 User.hasMany(File);
 File.belongsTo(User, { foreignKey: 'userId' });
-// User.hasMany(File, { foreignKey: 'userId' });
 
 File.belongsTo(Group, { foreignKey: 'groupId' });
 Group.hasMany(File);
 Group.hasMany(File, { foreignKey: 'groupId' });
 Chat.hasMany(File);
 File.belongsTo(Chat);
-// File.belongsTo(Chat);
-// Chat.hasMany(File);
+
 //Middleware
 app.use("/", userRouter);
 app.use("/user", userRouter);
