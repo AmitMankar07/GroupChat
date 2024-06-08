@@ -12,7 +12,7 @@ const jwt = require('jsonwebtoken');
 
 const multerS3 = require("multer-s3");
 const uploadToS3=require('../services/S3services').uploadToS3;
-const FileURL=require('../models/fileurl');
+
 const multer=require('multer');
 
 const storage = multer.diskStorage({

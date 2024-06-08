@@ -1,5 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../util/database");
+
+const Forgotpassword=require('./forgotPassword');
 const User=sequelize.define('users',{
   id:{
       type : Sequelize.INTEGER,
@@ -28,4 +30,16 @@ const User=sequelize.define('users',{
   
   
 });
+User.prototype.createForgotpassword = async function({ isActive }) {
+    try {
+        const forgotPassword = await Forgotpassword.create({
+            userId: this.id,
+        
+            isActive: isActive
+        });
+        return forgotPassword;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
 module.exports = User;

@@ -27,13 +27,14 @@ const userRouter = require("./router/userRouter");
 const homePageRouter = require("./router/homePageRouter");
 const chatRouter = require("./router/chatRouter");
 const groupRouter = require("./router/groupRouter");
+const forgotPasswordRoutes=require('./router/forgotPassword');
 
 //Models
 const User = require("./models/userModel");
 const Chat = require("./models/chatModel");
 const Group = require("./models/groupModel");
 const UserGroup = require("./models/userGroup");
-const FileURL=require('./models/fileurl');
+const Forgotpassword = require('./models/forgotPassword');
 const File=require('./models/files');
 
 //Relationships between Tables
@@ -49,6 +50,7 @@ Group.hasMany(UserGroup);
 UserGroup.belongsTo(User);
 UserGroup.belongsTo(Group);
 
+Forgotpassword.belongsTo(User, { foreignKey: 'userId' });
 // User.hasMany(FileURL);
 // FileURL.belongsTo(User);
 // Chat.hasMany(FileURL);
@@ -74,6 +76,8 @@ app.use("/homePage", homePageRouter);
 app.use("/chat", chatRouter);
 
 app.use("/group", groupRouter);
+
+app.use('/password',forgotPasswordRoutes);
 
 const job = require("./jobs/cron");
 job.start();

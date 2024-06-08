@@ -326,6 +326,105 @@ getMessages();
 //   }
 // }
 
+// async function getMessages() {
+//   const token = localStorage.getItem("token");
+//   const decodedToken = decodeToken(token);
+//   const userId = decodedToken.userId;
+//   const groupName = localStorage.getItem("groupName");
+
+//   socket.emit("getMessages", groupName);
+
+//   socket.on("messages", (messages) => {
+//     console.log("messages in socekt:",messages);
+//     chatBoxBody.innerHTML = "";
+//     messages.forEach((message) => {
+//       if (message.userId == userId) {
+//         // if (message.message.trim()!== "") {}//new changes
+
+        
+//         const div = document.createElement("div");
+//         chatBoxBody.appendChild(div);
+
+//         const messageSendby = document.createElement("span");
+//         messageSendby.classList.add(
+//           "d-flex",
+//           "justify-content-end",
+//           "px-3",
+//           "mb-1",
+//           "text-uppercase",
+//           "small",
+//           "text-white"
+//         );
+//         messageSendby.appendChild(document.createTextNode("You"));
+//         div.appendChild(messageSendby);
+
+//         const messageBox = document.createElement("div");
+//         const messageText = document.createElement("div");
+
+//         messageBox.classList.add("d-flex", "justify-content-end", "mb-4");
+//         div.appendChild(messageBox); //did change
+        
+//         messageText.classList.add("msg_cotainer_send");
+
+//         //  console.log("in getmessages:",message);
+//         if (message.Files && message.Files.length>0) { // Check if fileUrl is present
+         
+//           const file = message.Files[0];
+//           const fileName = file.name;
+//           const s3Url = file.s3Url;
+
+//           const link = document.createElement("a");
+//           link.href = s3Url;
+//           link.target = "_blank";
+          
+//       link.textContent = `Download ${fileName}`; // Open in new tab
+//           link.rel = "noopener noreferrer"; // Security attributes
+//           // link.appendChild(document.createTextNode("Download File")); // You can customize the text
+//           // messageText.appendChild(link);
+//           // const messageText = document.createElement("div");
+//           messageText.appendChild(link);
+    
+//           chatBoxBody.appendChild(messageText);
+       
+//         } else {
+//           messageText.appendChild(document.createTextNode(message.message));
+//         }
+//         messageText.classList.add("msg_cotainer_send");
+//         // messageText.appendChild(document.createTextNode(message.message));
+
+//         messageBox.appendChild(messageText);
+//         div.appendChild(messageBox);
+//       } else {
+//         const div = document.createElement("div");
+//         chatBoxBody.appendChild(div);
+
+//         const messageSendby = document.createElement("span");
+//         messageSendby.classList.add(
+//           "d-flex",
+//           "justify-content-start",
+//           "px-3",
+//           "mb-1",
+//           "text-uppercase",
+//           "small",
+//           "text-white"
+//         );
+//         messageSendby.appendChild(document.createTextNode(message.name));
+//         div.appendChild(messageSendby);
+
+//         const messageBox = document.createElement("div");
+//         const messageText = document.createElement("div");
+
+//         messageBox.classList.add("d-flex", "justify-content-start", "mb-4");
+
+//         messageText.classList.add("msg_cotainer");
+//         messageText.appendChild(document.createTextNode(message.message));
+
+//         messageBox.appendChild(messageText);
+//         div.appendChild(messageBox);
+//       }
+//     });
+//   });
+// }
 async function getMessages() {
   const token = localStorage.getItem("token");
   const decodedToken = decodeToken(token);
@@ -335,93 +434,58 @@ async function getMessages() {
   socket.emit("getMessages", groupName);
 
   socket.on("messages", (messages) => {
-    console.log("messages in socekt:",messages);
+    console.log("messages in socekt:", messages);
     chatBoxBody.innerHTML = "";
     messages.forEach((message) => {
-      if (message.userId == userId) {
-        // if (message.message.trim()!== "") {}//new changes
+      const div = document.createElement("div");
+      chatBoxBody.appendChild(div);
 
-        
-        const div = document.createElement("div");
-        chatBoxBody.appendChild(div);
+      const messageSendby = document.createElement("span");
+      messageSendby.classList.add(
+        "d-flex",
+        "justify-content-" + (message.userId == userId? "end" : "start"),
+        "px-3",
+        "mb-1",
+        "text-uppercase",
+        "small",
+        "text-white"
+      );
+      messageSendby.appendChild(
+        document.createTextNode(message.userId == userId? "You" : message.name)
+      );
+      div.appendChild(messageSendby);
 
-        const messageSendby = document.createElement("span");
-        messageSendby.classList.add(
-          "d-flex",
-          "justify-content-end",
-          "px-3",
-          "mb-1",
-          "text-uppercase",
-          "small",
-          "text-white"
-        );
-        messageSendby.appendChild(document.createTextNode("You"));
-        div.appendChild(messageSendby);
+      const messageBox = document.createElement("div");
+      const messageText = document.createElement("div");
 
-        const messageBox = document.createElement("div");
-        const messageText = document.createElement("div");
+      messageBox.classList.add(
+        "d-flex",
+        "justify-content-" + (message.userId == userId? "end" : "start"),
+        "mb-4"
+      );
+      div.appendChild(messageBox);
 
-        messageBox.classList.add("d-flex", "justify-content-end", "mb-4");
-        div.appendChild(messageBox); //did change
-        
-        messageText.classList.add("msg_cotainer_send");
+      messageText.classList.add(
+        message.userId == userId? "msg_cotainer_send" : "msg_cotainer"
+      );
 
-        //  console.log("in getmessages:",message);
-        if (message.Files && message.Files.length>0) { // Check if fileUrl is present
-         
-          const file = message.Files[0];
-          const fileName = file.name;
-          const s3Url = file.s3Url;
+      if (message.Files && message.Files.length > 0) {
+        const file = message.Files[0];
+        const fileName = file.name;
+        const s3Url = file.s3Url;
 
-          const link = document.createElement("a");
-          link.href = s3Url;
-          link.target = "_blank";
-          
-      link.textContent = `Download ${fileName}`; // Open in new tab
-          link.rel = "noopener noreferrer"; // Security attributes
-          // link.appendChild(document.createTextNode("Download File")); // You can customize the text
-          // messageText.appendChild(link);
-          // const messageText = document.createElement("div");
-          messageText.appendChild(link);
-    
-          chatBoxBody.appendChild(messageText);
-       
-        } else {
-          messageText.appendChild(document.createTextNode(message.message));
-        }
-        messageText.classList.add("msg_cotainer_send");
-        // messageText.appendChild(document.createTextNode(message.message));
-
-        messageBox.appendChild(messageText);
-        div.appendChild(messageBox);
+        const link = document.createElement("a");
+        link.href = s3Url;
+        link.target = "_blank";
+        link.textContent = `Download ${fileName}`;
+        link.rel = "noopener noreferrer";
+        messageText.appendChild(link);
       } else {
-        const div = document.createElement("div");
-        chatBoxBody.appendChild(div);
-
-        const messageSendby = document.createElement("span");
-        messageSendby.classList.add(
-          "d-flex",
-          "justify-content-start",
-          "px-3",
-          "mb-1",
-          "text-uppercase",
-          "small",
-          "text-white"
-        );
-        messageSendby.appendChild(document.createTextNode(message.name));
-        div.appendChild(messageSendby);
-
-        const messageBox = document.createElement("div");
-        const messageText = document.createElement("div");
-
-        messageBox.classList.add("d-flex", "justify-content-start", "mb-4");
-
-        messageText.classList.add("msg_cotainer");
         messageText.appendChild(document.createTextNode(message.message));
-
-        messageBox.appendChild(messageText);
-        div.appendChild(messageBox);
       }
+
+      messageBox.appendChild(messageText);
+      div.appendChild(messageBox);
     });
   });
 }
