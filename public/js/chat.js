@@ -142,38 +142,8 @@ const response=await axios.get(`http://localhost:4000/chat/getMessages?groupName
 );
 const messages=response.data;
 console.log("mesage snd get :",response.data);
-//   } else
 
-  // if(fileUrl){
-    // const fileMessage = {
-    //   message: `File uploaded: ${fileUrl}`,
-    //   groupName: groupName,
-    // };
-//     if (typeof fileUrl === 'string') {
-//   const fileName = fileUrl.split('/').pop();
-//   // ...
-//   const link = document.createElement("a");
-//   link.href = fileUrl;
-//   link.target = "_blank";
-//   link.rel = "noopener noreferrer";
-//   link.appendChild(document.createTextNode(`Download: ${fileName}`));
-//   const res = await axios.post(
-//     `http://localhost:4000/chat/sendMessage/`,
-    
-//     {
-//       message: `File uploaded: ${fileName}`,
-//       // fileUrl: fileUrl,
-//       fileUrl: fileUrl,
-//       groupName: groupName,
-//     },
-//     { headers: { Authorization: token } }
-//   );
-//   console.log("post messagesend",res);
-// } else {
-//   console.error('Invalid fileUrl type:', fileUrl);
-//   return;
-// }
-// }else {
+
   const res = await axios.post(
         `http://localhost:4000/chat/sendMessage/`,
         
@@ -196,136 +166,93 @@ getMessages();
 
 
 
-    // const fileName = fileUrl.split('/').pop();
-  
-
-    // let fileUrlForLink=fileUrl;
-  
-    
-    // const messageElement = document.createElement('div');
-    // messageElement.innerHTML = `File: <a href="${fileUrl}" target="_blank">${fileName}</a>`;
-    // // Add the messageElement to the chat UI
-    // document.getElementById('chat-ui').appendChild(messageElement);
-    
-
-//   const messageElement = document.createElement('div');
-// messageElement.innerHTML = `File: <a href="${fileUrl}" target="_blank">${fileName}</a>`;
-
-
-//remove fileurl
-
-
-
-// formData.append("imageUrl", imageUrl);
-
-
-// const response = await axios.get("/chat/s3Url");
-// if (response.status === 200) {
-//   const { url } = response.data;
-//   console.log(url);
-//   const imageUrl = url.split('?')[0]
-//   formData.append("imageUrl", imageUrl);
-
-//   const fileName = "image"; // replace with the actual filename
-//   // const contentType = file.type; // replace with the actual content type
-//   const linkText = "file"; // use "file" as the link text
-//   const link = `<a href="${imageUrl}" download="${fileName}">${linkText}</a>`;
-
-//   // const link = document.createElement("a");
-//   // link.href = `data:${contentType};base64,${btoa(imageUrl)}`;
-//   // link.download = fileName;
-//   // link.click();
-
- 
-//   if (file) {
-//     // formData
-//     const res = await axios.post(
-//       `http://localhost:4000/chat/sendMessage/`,
-      
-//         {
-//           message: linkText,
-//           imageUrl: imageUrl,
-//           groupName: groupName,
-//         },
-      
-//       { headers: { Authorization: token } }
-//     );
-//     console.log("response messagesend: ",res);
-
-//     const downloadLink = document.createElement("a");
-//     downloadLink.href = imageUrl;
-//     downloadLink.download = fileName;
-//     downloadLink.click();
-
-//      // Send the clickable link as the message to the server
-//      const res2 = await axios.post(
-//       `http://localhost:4000/chat/sendMessage/`,
-//       {
-//         message: link,
-//         imageUrl: imageUrl,
-//         groupName: groupName,
-//       },
-//       { headers: { Authorization: token } }
-//     );
-//     console.log("response messagesend: ", res2);
-
-  
-// } else {
-//   console.error("Something went wrong:", response.statusText);
-//   return; // or throw an error
-// }
-
 
   } catch (error) {
     console.log("something went wrong:",error);
   }
 }
 
-// async function messageSend() {
-//   try {
-//     if (chatBoxBody.querySelector(".groupMembersDiv")) {
-//       const members = chatBoxBody.querySelectorAll(".groupMembersDiv");
-//       members.forEach((member) => {
-//         member.remove();
-//       });
-//     }
-//     const message = chatBoxBody.querySelector(".chatInput");
-//     const groupName = chatBoxBody.querySelector(".groupName").textContent;
-//     const formData = new FormData();
-//     formData.append("groupName", groupName);
-//     formData.append("message", message.value);
-//     const file = chatBoxBody.querySelector("#fileInput").files[0];
-//     if (file) {
-//       formData.append("file", file);
-//     }
-//     const response = await fetch("/api/messages/send", {
-//       method: "POST",
-//       body: formData,
-//     });
-//     const result = await response.json();
-//     if (result.messages) {
-//       chatBoxBody.innerHTML = "";
-//       renderMessages(result.messages);
-//       if (result.fileUrl) {
-//         const file = await FileURL.findOne({
-//           where: {
-//             url: result.fileUrl,
-//           },
-//         });
-//         const chatMessage = await Chat.findOne({
-//           where: {
-//             message: result.messages[0].dataValues.message,
-//             groupId: result.messages[0].dataValues.groupId,
-//           },
-//         });
-//         chatMessage.setFileURL(file);
-//       }
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
 
+
+
+async function getMessages() {
+  const token = localStorage.getItem("token");
+  const decodedToken = decodeToken(token);
+  const userId = decodedToken.userId;
+  const groupName = localStorage.getItem("groupName");
+
+  socket.emit("getMessages", groupName);
+
+  socket.on("messages", (messages) => {
+    console.log("messages in socekt:", messages);
+    chatBoxBody.innerHTML = "";
+    messages.forEach((message) => {
+      const div = document.createElement("div");
+      chatBoxBody.appendChild(div);
+
+      const messageSendby = document.createElement("span");
+      messageSendby.classList.add(
+        "d-flex",
+        "justify-content-" + (message.userId == userId? "end" : "start"),
+        "px-3",
+        "mb-1",
+        "text-uppercase",
+        "small",
+        "text-white"
+      );
+      messageSendby.appendChild(
+        document.createTextNode(message.userId == userId? "You" : message.name)
+      );
+      div.appendChild(messageSendby);
+
+      const messageBox = document.createElement("div");
+      const messageText = document.createElement("div");
+
+      messageBox.classList.add(
+        "d-flex",
+        "justify-content-" + (message.userId == userId? "end" : "start"),
+        "mb-4"
+      );
+      div.appendChild(messageBox);
+
+      messageText.classList.add(
+        message.userId == userId? "msg_cotainer_send" : "msg_cotainer"
+      );
+
+      if (message.Files && message.Files.length > 0) {
+        const file = message.Files[0];
+        const fileName = file.name;
+        const s3Url = file.s3Url;
+
+        const link = document.createElement("a");
+        link.href = s3Url;
+        link.target = "_blank";
+        link.textContent = `Download ${fileName}`;
+        link.rel = "noopener noreferrer";
+        messageText.appendChild(link);
+      } else {
+        messageText.appendChild(document.createTextNode(message.message));
+      }
+
+      messageBox.appendChild(messageText);
+      div.appendChild(messageBox);
+    });
+  });
+}
+function decodeToken(token) {
+  const base64Url = token.split(".")[1];
+  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const jsonPayload = decodeURIComponent(
+    atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
+
+  return JSON.parse(jsonPayload);
+}
 // async function getMessages() {
 //   const token = localStorage.getItem("token");
 //   const decodedToken = decodeToken(token);
@@ -425,85 +352,6 @@ getMessages();
 //     });
 //   });
 // }
-async function getMessages() {
-  const token = localStorage.getItem("token");
-  const decodedToken = decodeToken(token);
-  const userId = decodedToken.userId;
-  const groupName = localStorage.getItem("groupName");
-
-  socket.emit("getMessages", groupName);
-
-  socket.on("messages", (messages) => {
-    console.log("messages in socekt:", messages);
-    chatBoxBody.innerHTML = "";
-    messages.forEach((message) => {
-      const div = document.createElement("div");
-      chatBoxBody.appendChild(div);
-
-      const messageSendby = document.createElement("span");
-      messageSendby.classList.add(
-        "d-flex",
-        "justify-content-" + (message.userId == userId? "end" : "start"),
-        "px-3",
-        "mb-1",
-        "text-uppercase",
-        "small",
-        "text-white"
-      );
-      messageSendby.appendChild(
-        document.createTextNode(message.userId == userId? "You" : message.name)
-      );
-      div.appendChild(messageSendby);
-
-      const messageBox = document.createElement("div");
-      const messageText = document.createElement("div");
-
-      messageBox.classList.add(
-        "d-flex",
-        "justify-content-" + (message.userId == userId? "end" : "start"),
-        "mb-4"
-      );
-      div.appendChild(messageBox);
-
-      messageText.classList.add(
-        message.userId == userId? "msg_cotainer_send" : "msg_cotainer"
-      );
-
-      if (message.Files && message.Files.length > 0) {
-        const file = message.Files[0];
-        const fileName = file.name;
-        const s3Url = file.s3Url;
-
-        const link = document.createElement("a");
-        link.href = s3Url;
-        link.target = "_blank";
-        link.textContent = `Download ${fileName}`;
-        link.rel = "noopener noreferrer";
-        messageText.appendChild(link);
-      } else {
-        messageText.appendChild(document.createTextNode(message.message));
-      }
-
-      messageBox.appendChild(messageText);
-      div.appendChild(messageBox);
-    });
-  });
-}
-function decodeToken(token) {
-  const base64Url = token.split(".")[1];
-  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-  const jsonPayload = decodeURIComponent(
-    atob(base64)
-      .split("")
-      .map(function (c) {
-        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join("")
-  );
-
-  return JSON.parse(jsonPayload);
-}
-
 // async function getMessages() {
 //   try {
 //     const groupName = localStorage.getItem("groupName");
