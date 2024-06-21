@@ -15,6 +15,7 @@ app.use(
 
 const dotenv = require("dotenv");
 dotenv.config();
+console.log("in the app");
 
 const sequelize = require("./util/database");
 
